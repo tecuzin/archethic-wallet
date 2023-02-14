@@ -252,6 +252,14 @@ dev_dependencies:
   # A code generator for Riverpod. This both simplifies the syntax empowers it, such as allowing stateful hot-reload.
   riverpod_generator: 1.0.6
 
+patrol:
+  app_name: Archethic wallet
+  android:
+    package_name: net.archethic.archethic_wallet 
+  ios:
+    bundleId: 'tech.archethic.wallet'
+
+
 msix_config:
   display_name: Archethic Wallet
   publisher_display_name: Archethic Technologies SARL
