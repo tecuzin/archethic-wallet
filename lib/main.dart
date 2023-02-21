@@ -43,8 +43,14 @@ Future<void> main() async {
   if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
     await windowManager.ensureInitialized();
 
-    const windowOptions = WindowOptions(
-      size: Size(370, 800),
+    var sizeWindows = const Size(370, 800);
+    if (Platform.isLinux) {
+      sizeWindows = const Size(430, 850);
+    }
+
+    final windowOptions = WindowOptions(
+      size: sizeWindows,
+      maximumSize: sizeWindows,
       center: true,
       backgroundColor: Colors.transparent,
       fullScreen: false,
@@ -52,8 +58,15 @@ Future<void> main() async {
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.normal,
     );
+
     await windowManager.waitUntilReadyToShow(windowOptions, () async {
-      windowManager.setResizable(false);
+      // https://github.com/leanflutter/window_manager/issues/238
+      if (Platform.isLinux) {
+        await windowManager.setResizable(true);
+      } else {
+        await windowManager.setResizable(false);
+      }
+
       // ignore: cascade_invocations
       if (Platform.isWindows) {
         windowManager.setMaximizable(false);

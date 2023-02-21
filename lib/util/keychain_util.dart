@@ -91,13 +91,13 @@ class KeychainUtil {
     const index = '0';
     final kDerivationPath = '$kDerivationPathWithoutIndex$index';
 
-    final keychain = Keychain(hexToUint8List(keychainSeed), version: 1)
-      ..addService(kServiceName, kDerivationPath);
+    final keychain = Keychain(seed: hexToUint8List(keychainSeed), version: 1)
+        .copyWithService(kServiceName, kDerivationPath);
 
     /// Create Keychain from keyChain seed and wallet public key to encrypt secret
     final keychainTransaction = sl.get<ApiService>().newKeychainTransaction(
           keychainSeed,
-          <String>[uint8ListToHex(walletKeyPair.publicKey)],
+          <String>[uint8ListToHex(walletKeyPair.publicKey!)],
           hexToUint8List(originPrivateKey),
           serviceName: kServiceName,
           derivationPath: kDerivationPath,
@@ -118,7 +118,8 @@ class KeychainUtil {
           transactionSender,
           TransactionSendEventType.keychain,
           params: <String, Object>{
-            'keychainAddress': keychainTransaction.address!,
+            'keychainAddress':
+                keychainTransaction.address!.address!.toUpperCase(),
             'originPrivateKey': originPrivateKey,
             'keychain': keychain
           },
@@ -156,7 +157,7 @@ class KeychainUtil {
     final kDerivationPathWithoutIndex = "m/650'/$kServiceName/";
     const index = '0';
     final kDerivationPath = '$kDerivationPathWithoutIndex$index';
-    keychain.addService(kServiceName, kDerivationPath);
+    final newKeychain = keychain.copyWithService(kServiceName, kDerivationPath);
 
     final lastTransactionKeychainMap =
         await sl.get<ApiService>().getLastTransaction(
@@ -173,14 +174,14 @@ class KeychainUtil {
 
     final keychainTransaction =
         Transaction(type: 'keychain', data: Transaction.initData())
-            .setContent(jsonEncode(keychain.toDID()));
+            .setContent(jsonEncode(newKeychain.toDID()));
 
     final authorizedKeys = List<AuthorizedKey>.empty(growable: true);
     final authorizedKeysList =
         lastTransactionKeychainMap[genesisAddressKeychain]!
             .data!
-            .ownerships![0]
-            .authorizedPublicKeys!;
+            .ownerships[0]
+            .authorizedPublicKeys;
     for (final authorizedKey in authorizedKeysList) {
       authorizedKeys.add(
         AuthorizedKey(
@@ -192,20 +193,22 @@ class KeychainUtil {
     }
 
     keychainTransaction.addOwnership(
-      aesEncrypt(keychain.encode(), aesKey),
+      uint8ListToHex(
+        aesEncrypt(newKeychain.encode(), aesKey),
+      ),
       authorizedKeys,
     );
 
     keychainTransaction
         .build(
-          uint8ListToHex(keychain.seed!),
+          uint8ListToHex(newKeychain.seed!),
           lastTransactionKeychainMap[genesisAddressKeychain]!.chainLength!,
         )
         .originSign(originPrivateKey);
 
     await sl.get<ApiService>().sendTx(keychainTransaction);
 
-    final genesisAddress = keychain.deriveAddress(kServiceName);
+    final genesisAddress = newKeychain.deriveAddress(kServiceName);
     selectedAcct = Account(
       lastLoadingTransactionInputs: 0,
       lastAddress: uint8ListToHex(genesisAddress),
@@ -227,6 +230,7 @@ class KeychainUtil {
         .getLastTransaction([genesisAddressKeychain], request: 'address');
     appWallet.appKeychain.address = lastTransactionKeychainAddressMap[
             genesisAddressKeychain]!
+        .address!
         .address!; // TODO(Chralu): Transaction.address should be non-nullable (3)
 
     await sl.get<DBHelper>().saveAppWallet(appWallet);
@@ -235,8 +239,9 @@ class KeychainUtil {
       name: '@$name',
       address: uint8ListToHex(genesisAddress),
       type: ContactType.keychainService.name,
-      publicKey: uint8ListToHex(keychain.deriveKeypair(kServiceName).publicKey)
-          .toUpperCase(),
+      publicKey:
+          uint8ListToHex(newKeychain.deriveKeypair(kServiceName).publicKey!)
+              .toUpperCase(),
     );
     await sl.get<DBHelper>().saveContact(newContact);
 
@@ -261,9 +266,9 @@ class KeychainUtil {
         final lastTransactionMap =
             await sl.get<ApiService>().getLastTransaction([addressKeychain]);
 
-        currentAppWallet = await sl
-            .get<DBHelper>()
-            .createAppWallet(lastTransactionMap[addressKeychain]!.address!);
+        currentAppWallet = await sl.get<DBHelper>().createAppWallet(
+              lastTransactionMap[addressKeychain]!.address!.address!,
+            );
       } else {
         currentAppWallet = appWallet;
       }
@@ -276,11 +281,11 @@ class KeychainUtil {
       final lastAddressAccountList = <String>[];
 
       /// Get all services for archethic blockchain
-      keychain.services!.forEach((serviceName, service) async {
-        if (service.derivationPath!.startsWith(kDerivationPathWithoutService)) {
+      keychain.services.forEach((serviceName, service) async {
+        if (service.derivationPath.startsWith(kDerivationPathWithoutService)) {
           final genesisAddress = keychain.deriveAddress(serviceName);
 
-          final path = service.derivationPath!
+          final path = service.derivationPath
               .replaceAll(kDerivationPathWithoutService, '')
               .split('/')
             ..last = '';
@@ -332,7 +337,7 @@ class KeychainUtil {
               address: uint8ListToHex(genesisAddress),
               type: ContactType.keychainService.name,
               publicKey:
-                  uint8ListToHex(keychain.deriveKeypair(serviceName).publicKey)
+                  uint8ListToHex(keychain.deriveKeypair(serviceName).publicKey!)
                       .toUpperCase(),
             );
             await sl.get<DBHelper>().saveContact(newContact);
@@ -350,16 +355,20 @@ class KeychainUtil {
       );
 
       currentAppWallet.appKeychain.address =
-          lastTransactionKeychainMap[genesisAddressKeychain]!.address!;
+          lastTransactionKeychainMap[genesisAddressKeychain]!.address!.address!;
 
       for (var i = 0; i < accounts.length; i++) {
         if (lastTransactionKeychainMap[accounts[i].genesisAddress] != null &&
             lastTransactionKeychainMap[accounts[i].genesisAddress]!.address !=
                 null) {
           accounts[i].lastAddress =
-              lastTransactionKeychainMap[accounts[i].genesisAddress]!.address;
+              lastTransactionKeychainMap[accounts[i].genesisAddress]!
+                  .address!
+                  .address;
           lastAddressAccountList.add(
-            lastTransactionKeychainMap[accounts[i].genesisAddress]!.address!,
+            lastTransactionKeychainMap[accounts[i].genesisAddress]!
+                .address!
+                .address!,
           );
         } else {
           lastAddressAccountList.add(
@@ -382,18 +391,14 @@ class KeychainUtil {
                 balanceGetResponseMap[accounts[i].lastAddress]!;
             final accountBalance = AccountBalance(
               nativeTokenName: AccountBalance.cryptoCurrencyLabel,
-              nativeTokenValue: balanceGetResponse.uco == null
-                  ? 0
-                  : fromBigInt(balanceGetResponse.uco).toDouble(),
+              nativeTokenValue: fromBigInt(balanceGetResponse.uco).toDouble(),
             );
-            if (balanceGetResponse.token != null) {
-              for (final token in balanceGetResponse.token!) {
-                if (token.tokenId != null) {
-                  if (token.tokenId == 0) {
-                    accountBalance.tokensFungiblesNb++;
-                  } else {
-                    accountBalance.nftNb++;
-                  }
+            for (final token in balanceGetResponse.token) {
+              if (token.tokenId != null) {
+                if (token.tokenId == 0) {
+                  accountBalance.tokensFungiblesNb++;
+                } else {
+                  accountBalance.nftNb++;
                 }
               }
             }
@@ -455,24 +460,24 @@ mixin KeychainMixin {
   ) {
     final keychainSecuredInfosServiceMap =
         <String, KeychainSecuredInfosService>{};
-    keychain.services!.forEach((key, value) {
+    keychain.services.forEach((key, value) {
       final keyPair = keychain.deriveKeypair(key);
 
       keychainSecuredInfosServiceMap[key] = KeychainSecuredInfosService(
-        curve: value.curve ?? '',
-        derivationPath: value.derivationPath ?? '',
-        hashAlgo: value.hashAlgo ?? '',
+        curve: value.curve,
+        derivationPath: value.derivationPath,
+        hashAlgo: value.hashAlgo,
         name: key.replaceAll('archethic-wallet-', ''),
         keyPair: KeychainServiceKeyPair(
-          privateKey: keyPair.privateKey,
-          publicKey: keyPair.publicKey,
+          privateKey: keyPair.privateKey!,
+          publicKey: keyPair.publicKey!,
         ),
       );
     });
 
     return KeychainSecuredInfos(
       seed: keychain.seed!,
-      version: keychain.version!,
+      version: keychain.version,
       services: keychainSecuredInfosServiceMap,
     );
   }
@@ -491,7 +496,7 @@ mixin KeychainMixin {
     });
 
     return Keychain(
-      Uint8List.fromList(keychainSecuredInfos.seed),
+      seed: Uint8List.fromList(keychainSecuredInfos.seed),
       services: services,
       version: keychainSecuredInfos.version,
     );

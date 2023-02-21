@@ -41,7 +41,7 @@ mixin _$NftCreationFormState {
   String get symbol => throw _privateConstructorUsedError;
   int get initialSupply => throw _privateConstructorUsedError;
   bool get checkPreventUserPublicInfo => throw _privateConstructorUsedError;
-  archethic.Transaction? get transaction => throw _privateConstructorUsedError;
+  Transaction? get transaction => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $NftCreationFormStateCopyWith<NftCreationFormState> get copyWith =>
@@ -77,9 +77,10 @@ abstract class $NftCreationFormStateCopyWith<$Res> {
       String symbol,
       int initialSupply,
       bool checkPreventUserPublicInfo,
-      archethic.Transaction? transaction});
+      Transaction? transaction});
 
   $PropertyAccessRecipientCopyWith<$Res> get propertyAccessRecipient;
+  $TransactionCopyWith<$Res>? get transaction;
 }
 
 /// @nodoc
@@ -212,7 +213,7 @@ class _$NftCreationFormStateCopyWithImpl<$Res,
       transaction: freezed == transaction
           ? _value.transaction
           : transaction // ignore: cast_nullable_to_non_nullable
-              as archethic.Transaction?,
+              as Transaction?,
     ) as $Val);
   }
 
@@ -222,6 +223,18 @@ class _$NftCreationFormStateCopyWithImpl<$Res,
     return $PropertyAccessRecipientCopyWith<$Res>(
         _value.propertyAccessRecipient, (value) {
       return _then(_value.copyWith(propertyAccessRecipient: value) as $Val);
+    });
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $TransactionCopyWith<$Res>? get transaction {
+    if (_value.transaction == null) {
+      return null;
+    }
+
+    return $TransactionCopyWith<$Res>(_value.transaction!, (value) {
+      return _then(_value.copyWith(transaction: value) as $Val);
     });
   }
 }
@@ -257,10 +270,12 @@ abstract class _$$_NftCreationFormStateCopyWith<$Res>
       String symbol,
       int initialSupply,
       bool checkPreventUserPublicInfo,
-      archethic.Transaction? transaction});
+      Transaction? transaction});
 
   @override
   $PropertyAccessRecipientCopyWith<$Res> get propertyAccessRecipient;
+  @override
+  $TransactionCopyWith<$Res>? get transaction;
 }
 
 /// @nodoc
@@ -390,7 +405,7 @@ class __$$_NftCreationFormStateCopyWithImpl<$Res>
       transaction: freezed == transaction
           ? _value.transaction
           : transaction // ignore: cast_nullable_to_non_nullable
-              as archethic.Transaction?,
+              as Transaction?,
     ));
   }
 }
@@ -500,7 +515,7 @@ class _$_NftCreationFormState extends _NftCreationFormState {
   @JsonKey()
   final bool checkPreventUserPublicInfo;
   @override
-  final archethic.Transaction? transaction;
+  final Transaction? transaction;
 
   @override
   String toString() {
@@ -620,7 +635,7 @@ abstract class _NftCreationFormState extends NftCreationFormState {
       final String symbol,
       final int initialSupply,
       final bool checkPreventUserPublicInfo,
-      final archethic.Transaction? transaction}) = _$_NftCreationFormState;
+      final Transaction? transaction}) = _$_NftCreationFormState;
   const _NftCreationFormState._() : super._();
 
   @override
@@ -668,7 +683,7 @@ abstract class _NftCreationFormState extends NftCreationFormState {
   @override
   bool get checkPreventUserPublicInfo;
   @override
-  archethic.Transaction? get transaction;
+  Transaction? get transaction;
   @override
   @JsonKey(ignore: true)
   _$$_NftCreationFormStateCopyWith<_$_NftCreationFormState> get copyWith =>

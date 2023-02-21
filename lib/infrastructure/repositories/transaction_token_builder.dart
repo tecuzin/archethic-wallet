@@ -42,7 +42,7 @@ extension AddTokenTransactionBuilder on archethic.Transaction {
             tokenProperty.propertyValue;
       } else {
         final authorizedPublicKeys = List<String>.empty(growable: true)
-          ..add(archethic.uint8ListToHex(keyPair.publicKey));
+          ..add(archethic.uint8ListToHex(keyPair.publicKey!));
 
         for (final publicKey in tokenProperty.publicKeys) {
           authorizedPublicKeys.add(
@@ -66,7 +66,9 @@ extension AddTokenTransactionBuilder on archethic.Transaction {
         tokenPropertiesProtected[tokenProperty.propertyName] =
             tokenProperty.propertyValue;
         transaction.addOwnership(
-          archethic.aesEncrypt(json.encode(tokenPropertiesProtected), aesKey),
+          archethic.uint8ListToHex(
+            archethic.aesEncrypt(json.encode(tokenPropertiesProtected), aesKey),
+          ),
           authorizedKeys,
         );
       }
@@ -78,24 +80,25 @@ extension AddTokenTransactionBuilder on archethic.Transaction {
       type: tokenType,
       symbol: tokenSymbol,
       aeip: aeip,
-      tokenProperties: tokenPropertiesNotProtected,
+      properties: tokenPropertiesNotProtected,
     );
 
-    final content = archethic.tokenToJsonForTxDataContent(
-      token,
-    );
-    transaction
-      ..setContent(content)
-      ..address = archethic.uint8ListToHex(
-        keychain.deriveAddress(
-          serviceName,
-          index: index + 1,
+    final content = token.tokenToJsonForTxDataContent();
+    final newTransactionContent = transaction.setContent(content);
+    final newTransactionAddress = newTransactionContent.setAddress(
+      archethic.Address(
+        address: archethic.uint8ListToHex(
+          keychain.deriveAddress(
+            serviceName,
+            index: index + 1,
+          ),
         ),
-      );
+      ),
+    );
 
     return keychain
         .buildTransaction(
-          transaction,
+          newTransactionAddress,
           serviceName,
           index,
         )

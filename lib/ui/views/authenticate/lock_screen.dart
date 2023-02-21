@@ -1,22 +1,15 @@
 import 'package:aewallet/application/authentication/authentication.dart';
-import 'package:aewallet/application/settings/language.dart';
 import 'package:aewallet/application/settings/settings.dart';
 import 'package:aewallet/application/settings/theme.dart';
-import 'package:aewallet/application/wallet/wallet.dart';
 import 'package:aewallet/localization.dart';
-import 'package:aewallet/model/available_language.dart';
 import 'package:aewallet/ui/util/dimens.dart';
 import 'package:aewallet/ui/util/styles.dart';
 import 'package:aewallet/ui/widgets/components/app_button_tiny.dart';
-import 'package:aewallet/ui/widgets/components/dialog.dart';
-import 'package:aewallet/util/case_converter.dart';
 import 'package:aewallet/util/get_it_instance.dart';
 import 'package:aewallet/util/haptic_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// Package imports:
 import 'package:flutter_vibrate/flutter_vibrate.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 abstract class DurationFormatters {
   static String _twoDigitsFormatter(int value) =>
@@ -99,75 +92,6 @@ class AppLockScreen extends ConsumerWidget {
                     Expanded(
                       child: Column(
                         children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Container(
-                                margin: EdgeInsetsDirectional.only(
-                                  start: smallScreen(context) ? 15 : 20,
-                                ),
-                                height: 50,
-                                child: TextButton(
-                                  onPressed: () {
-                                    final language = ref.read(
-                                      LanguageProviders.selectedLanguage,
-                                    );
-                                    AppDialogs.showConfirmDialog(
-                                        context,
-                                        ref,
-                                        CaseChange.toUpperCase(
-                                          localizations.warning,
-                                          language.getLocaleString(),
-                                        ),
-                                        localizations.removeWalletDetail,
-                                        localizations.removeWalletAction, () {
-                                      // Show another confirm dialog
-                                      AppDialogs.showConfirmDialog(
-                                        context,
-                                        ref,
-                                        localizations.areYouSure,
-                                        localizations.removeWalletReassurance,
-                                        localizations.yes,
-                                        () async {
-                                          await ref
-                                              .read(
-                                                SessionProviders
-                                                    .session.notifier,
-                                              )
-                                              .logout();
-                                          Navigator.of(context)
-                                              .pushNamedAndRemoveUntil(
-                                            '/',
-                                            (Route<dynamic> route) => false,
-                                          );
-                                        },
-                                      );
-                                    });
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      FaIcon(
-                                        FontAwesomeIcons.rightFromBracket,
-                                        size: 16,
-                                        color: theme.text,
-                                      ),
-                                      Container(
-                                        margin:
-                                            const EdgeInsetsDirectional.only(
-                                          start: 4,
-                                        ),
-                                        child: Text(
-                                          localizations.removeWallet,
-                                          style:
-                                              theme.textStyleSize14W600Primary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
                           if (isLocked)
                             Container(
                               margin: const EdgeInsets.only(top: 10),
