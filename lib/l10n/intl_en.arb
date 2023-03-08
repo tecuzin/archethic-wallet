@@ -396,6 +396,30 @@
     "placeholders_order": [],
     "placeholders": {}
   },
+  "userCancelledOperation": "User cancelled operation",
+  "@userCancelledOperation": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "transactionConfirmationFormHeader": "Transaction send confirmation",
+  "@transactionConfirmationFormHeader": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "unknownAccount": "Account %1 does not exist.",
+  "@unknownAccount": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "invalidTransaction": "Transaction is invalid",
+  "@invalidTransaction": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
   "invalidAddress": "Address entered is invalid",
   "@invalidAddress": {
     "type": "text",
@@ -1974,6 +1998,12 @@
     "placeholders_order": [],
     "placeholders": {}
   },
+  "transactionSignatureCommandReceivedNotification": "Application %1 wants to send a transaction.",
+  "@transactionSignatureCommandReceivedNotification": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
   "transactionInputNotification": "You have received %1 %2 on your %3 account",
   "@transactionInputNotification": {
     "type": "text",
@@ -2810,6 +2840,12 @@
   },
   "connectivityWarningDesc": "You can use the application when your connection is interrupted, but the information may be outdated and some features are disabled.",
   "@connectivityWarningDesc": {
+    "type": "text",
+    "placeholders_order": [],
+    "placeholders": {}
+  },
+  "aewebHosting": "AEWeb hosting",
+  "@aewebHosting": {
     "type": "text",
     "placeholders_order": [],
     "placeholders": {}

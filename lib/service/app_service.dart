@@ -21,7 +21,7 @@ import 'package:archethic_lib_dart/archethic_lib_dart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class AppService with KeychainMixin {
+class AppService {
   Future<Map<String, List<Transaction>>> getTransactionChain(
     Map<String, String> addresses,
     String? request,
@@ -174,6 +174,17 @@ class AppService with KeychainMixin {
         recentTransactions.add(recentTransaction);
       }
 
+      if (transaction.type! == 'hosting') {
+        final recentTransaction = RecentTransaction()
+          ..address = transaction.address!.address
+          ..timestamp = transaction.validationStamp!.timestamp
+          ..typeTx = RecentTransaction.hosting
+          ..fee = fromBigInt(transaction.validationStamp!.ledgerOperations!.fee)
+              .toDouble()
+          ..tokenAddress = transaction.address!.address;
+        recentTransactions.add(recentTransaction);
+      }
+
       if (transaction.type! == 'transfer') {
         for (final transfer in transaction.data!.ledger!.uco!.transfers) {
           final recentTransaction = RecentTransaction()
@@ -285,7 +296,7 @@ class AppService with KeychainMixin {
 
     var recentTransactions = <RecentTransaction>[];
 
-    final keychain = keychainSecuredInfosToKeychain(keychainSecuredInfos);
+    final keychain = keychainSecuredInfos.toKeychain();
     final nameEncoded = Uri.encodeFull(
       name,
     );
@@ -874,11 +885,12 @@ class AppService with KeychainMixin {
           TransactionInfos(
             domain: 'Data',
             titleInfo: 'Content',
-            valueInfo: transaction.type == 'token'
-                ? 'See explorer...'
-                : transaction.data!.content == ''
-                    ? 'N/A'
-                    : transaction.data!.content!,
+            valueInfo:
+                transaction.type == 'token' || transaction.type == 'hosting'
+                    ? 'See explorer...'
+                    : transaction.data!.content == ''
+                        ? 'N/A'
+                        : transaction.data!.content!,
           ),
         );
       }
