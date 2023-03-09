@@ -1015,6 +1015,11 @@ class AppLocalization {
         name: 'transactionSignatureCommandReceivedNotification');
   }
 
+  String get addServiceCommandReceivedNotification {
+    return Intl.message('Application %1 wants to add a service.',
+        name: 'addServiceCommandReceivedNotification');
+  }
+
   String get transactionInputNotification {
     return Intl.message('You have received %1 %2 on your %3 account',
         name: 'transactionInputNotification');
@@ -2234,6 +2239,19 @@ class AppLocalization {
 
   String get aewebHosting {
     return Intl.message('AEWeb hosting', name: 'aewebHosting');
+  }
+
+  String get serviceTypeLabelArchethicWallet {
+    return Intl.message('Wallet', name: 'serviceTypeLabelArchethicWallet');
+  }
+
+  String get serviceTypeLabelAeweb {
+    return Intl.message('Website hosted on AEWeb',
+        name: 'serviceTypeLabelAeweb');
+  }
+
+  String get serviceTypeLabelOther {
+    return Intl.message('Other', name: 'serviceTypeLabelOther');
   }
 }
 
