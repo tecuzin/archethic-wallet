@@ -207,7 +207,7 @@ class KeychainUtil with KeychainServiceMixin {
 
         accounts.add(account);
 
-        if (serviceType == ServiceType.archethicWallet) {
+        if (serviceType == 'archethicWallet') {
           try {
             await sl.get<DBHelper>().getContactWithName(account.name);
           } catch (e) {
